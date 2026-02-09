@@ -421,7 +421,7 @@ const Landing = () => {
                 <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
                   Sage Exams
                 </span>
-                <p className="text-gray-500 text-sm">© 2024 Secure Online Assessment Platform</p>
+                <p className="text-gray-500 text-sm">© 2026 Secure Online Assessment Platform</p>
               </div>
             </div>
             
