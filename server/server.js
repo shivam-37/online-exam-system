@@ -36,6 +36,7 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/exams', require('./routes/online.routes'));
 app.use('/api/reports', require('./routes/report.routes'));
 app.use('/api/settings', require('./routes/setting.routes'));
+app.use('/api/users', require('./routes/user.routes'));
 
 // Test route
 app.get('/api/test', (req, res) => {
@@ -45,9 +46,9 @@ app.get('/api/test', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     success: false,
-    message: 'Something went wrong!' 
+    message: 'Something went wrong!'
   });
 });
 

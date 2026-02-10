@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { isAuthenticated, getUserRole } from './utils/auth';
 
 // Lazy load pages for better performance
-const Layout = lazy(() => import('./components/Layout'));
+const Layout = lazy(() => import('./pages/Layout'));
 const Landing = lazy(() => import('./pages/Landing'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -53,11 +53,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 // Public Route Component
 const PublicRoute = ({ children, isLanding = false }) => {
   const isAuth = isAuthenticated();
-  
+
   if (isLanding) {
     return children;
   }
-  
+
   if (isAuth) {
     const userRole = getUserRole();
     if (userRole === 'admin') {
@@ -65,7 +65,7 @@ const PublicRoute = ({ children, isLanding = false }) => {
     }
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return children;
 };
 
@@ -84,7 +84,7 @@ const NotFound = () => (
       </div>
       <h1 className="text-4xl font-display font-bold text-white mb-3">404</h1>
       <p className="text-gray-400 mb-6">The page you're looking for doesn't exist.</p>
-      <button 
+      <button
         onClick={() => window.history.back()}
         className="px-6 py-3 bg-gradient-to-r from-sage-600 to-wisdom-blue rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-sage-600/30 transition-all duration-300"
       >
@@ -104,14 +104,14 @@ function App() {
             <Landing />
           </PublicRoute>
         } />
-        
+
         {/* Public Routes */}
         <Route path="/login" element={
           <PublicRoute>
             <Login />
           </PublicRoute>
         } />
-        
+
         <Route path="/register" element={
           <PublicRoute>
             <Register />
@@ -125,67 +125,67 @@ function App() {
               <Dashboard />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/exams" element={
             <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
               <Exams />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/exam/:id" element={
             <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
               <ExamDetail />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/exam/:id/take" element={
             <ProtectedRoute allowedRoles={['student']}>
               <TakeExam />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/reports" element={
             <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
               <Reports />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/report/:id" element={
             <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
               <ReportDetail />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/exams/create" element={
             <ProtectedRoute allowedRoles={['admin', 'teacher']}>
               <CreateExam />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/exam/:id/edit" element={
             <ProtectedRoute allowedRoles={['admin', 'teacher']}>
               <CreateExam />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/profile" element={
             <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
               <Profile />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/admin" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminPanel />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/admin/users" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminUsers />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/admin/settings" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminSettings />

@@ -24,7 +24,7 @@ exports.getReport = async (req, res) => {
     const report = await Report.findById(req.params.id)
       .populate('exam')
       .populate('user', 'name email');
-    
+
     if (!report) {
       return res.status(404).json({ message: 'Report not found' });
     }
@@ -68,7 +68,21 @@ exports.getExamStats = async (req, res) => {
     }
 
     const reports = await Report.find({ exam: req.params.examId });
-    
+
+    if (reports.length === 0) {
+      return res.json({
+        totalAttempts: 0,
+        averageScore: 0,
+        highestScore: 0,
+        lowestScore: 0,
+        passRate: 0,
+        averageTimeTaken: 0,
+        scoreDistribution: {
+          '90-100': 0, '80-89': 0, '70-79': 0, '60-69': 0, '0-59': 0,
+        },
+      });
+    }
+
     const stats = {
       totalAttempts: reports.length,
       averageScore: reports.reduce((acc, report) => acc + report.score, 0) / reports.length,

@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  getMyReports, 
-  getReport, 
+const {
+  getMyReports,
+  getReport,
   getAllReports,
-  getExamStats 
+  getExamStats
 } = require('../controllers/report.controller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
 router.get('/my-reports', protect, getMyReports);
-router.get('/:id', protect, getReport);
-router.get('/', protect, authorize('admin', 'teacher'), getAllReports);
 router.get('/exam/:examId/stats', protect, authorize('admin', 'teacher'), getExamStats);
+router.get('/', protect, authorize('admin', 'teacher'), getAllReports);
+router.get('/:id', protect, getReport);
 
 module.exports = router;

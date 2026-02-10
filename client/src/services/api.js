@@ -47,7 +47,7 @@ export const authAPI = {
   updateProfile: (userData) => api.put('/auth/update-profile', userData),
   logout: () => api.post('/auth/logout'),
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
-  resetPassword: (token, password) => api.post('/auth/reset-password', { token, password }),
+  resetPassword: (token, password) => api.put(`/auth/reset-password/${token}`, { password }),
   googleLogin: () => api.get('/auth/google'),
   githubLogin: () => api.get('/auth/github'),
 };
