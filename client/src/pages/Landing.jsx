@@ -111,9 +111,9 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white overflow-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-700/50">
+      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-gray-800/50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -126,11 +126,11 @@ const Landing = () => {
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-300 hover:text-orange-300 transition-colors">Features</a>
-              <a href="#security" className="text-gray-300 hover:text-orange-300 transition-colors">Security</a>
-              <a href="#testimonials" className="text-gray-300 hover:text-orange-300 transition-colors">Testimonials</a>
-              <a href="#pricing" className="text-gray-300 hover:text-orange-300 transition-colors">Pricing</a>
-              <Link to="/login" className="text-gray-300 hover:text-orange-300 transition-colors">Sign In</Link>
+              <a href="#features" className="text-gray-400 hover:text-orange-300 transition-colors">Features</a>
+              <a href="#security" className="text-gray-400 hover:text-orange-300 transition-colors">Security</a>
+              <a href="#testimonials" className="text-gray-400 hover:text-orange-300 transition-colors">Testimonials</a>
+              <a href="#pricing" className="text-gray-400 hover:text-orange-300 transition-colors">Pricing</a>
+              <Link to="/login" className="text-gray-400 hover:text-orange-300 transition-colors">Sign In</Link>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -149,7 +149,7 @@ const Landing = () => {
       <section className="pt-32 pb-20 px-6 relative">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-orange-900/30 border border-orange-700/50 mb-6">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-orange-950/30 border border-orange-800/50 mb-6">
               <ShieldCheckIcon className="h-4 w-4 text-orange-400 mr-2" />
               <span className="text-orange-300 text-sm">Trusted by 500+ Institutions Worldwide</span>
             </div>
@@ -162,7 +162,7 @@ const Landing = () => {
               <span className="text-white">Made Simple</span>
             </h1>
             
-            <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
               The most advanced, secure, and reliable platform for conducting online assessments. 
               From universities to corporations, we ensure integrity in every exam.
             </p>
@@ -177,7 +177,7 @@ const Landing = () => {
               </Link>
               <Link 
                 to="/demo" 
-                className="px-8 py-4 border-2 border-gray-700 rounded-xl font-semibold text-lg hover:border-orange-500 hover:text-orange-300 transition-all duration-300"
+                className="px-8 py-4 border-2 border-gray-800 rounded-xl font-semibold text-lg hover:border-orange-500 hover:text-orange-300 transition-all duration-300"
               >
                 Request Demo
               </Link>
@@ -192,23 +192,23 @@ const Landing = () => {
               { number: '50K+', label: 'Active Users' },
               { number: '100+', label: 'Countries' }
             ].map((stat, index) => (
-              <div key={index} className="text-center p-6 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50">
+              <div key={index} className="text-center p-6 bg-black/40 backdrop-blur-sm rounded-2xl border border-gray-800/50">
                 <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
                   {stat.number}
                 </div>
-                <div className="text-gray-400 mt-2">{stat.label}</div>
+                <div className="text-gray-500 mt-2">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
         
         {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-64 h-64 bg-orange-600/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-amber-600/5 rounded-full blur-3xl"></div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-6 bg-gray-800/20">
+      <section id="features" className="py-20 px-6 bg-black/40">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-display font-bold mb-4">
@@ -216,7 +216,7 @@ const Landing = () => {
                 Powerful Exam Features
               </span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto">
               Everything you need to conduct secure, efficient, and scalable online assessments.
             </p>
           </div>
@@ -225,7 +225,7 @@ const Landing = () => {
             {features.map((feature, index) => (
               <div 
                 key={index} 
-                className="group p-8 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 transform hover:-translate-y-2"
+                className="group p-8 bg-black/40 backdrop-blur-sm rounded-2xl border border-gray-800/50 hover:border-orange-500/50 transition-all duration-300 transform hover:-translate-y-2"
               >
                 <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.color} mb-6`}>
                   {feature.icon}
@@ -233,7 +233,7 @@ const Landing = () => {
                 <h3 className="text-xl font-semibold mb-3 text-white group-hover:text-orange-300 transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-gray-500">
                   {feature.description}
                 </p>
               </div>
@@ -251,7 +251,7 @@ const Landing = () => {
                 For Every Assessment Need
               </span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto">
               Comprehensive solutions for all types of examinations
             </p>
           </div>
@@ -260,14 +260,14 @@ const Landing = () => {
             {examTypes.map((type, index) => (
               <div 
                 key={index} 
-                className="p-8 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-amber-500/50 transition-all duration-300"
+                className="p-8 bg-black/40 backdrop-blur-sm rounded-2xl border border-gray-800/50 hover:border-amber-500/50 transition-all duration-300"
               >
                 <div className="text-4xl mb-4">{type.icon}</div>
                 <h3 className="text-2xl font-semibold mb-3 text-white">{type.name}</h3>
-                <p className="text-gray-400 mb-6">{type.description}</p>
+                <p className="text-gray-500 mb-6">{type.description}</p>
                 <ul className="space-y-2">
                   {type.exams.map((exam, idx) => (
-                    <li key={idx} className="flex items-center text-gray-300">
+                    <li key={idx} className="flex items-center text-gray-400">
                       <div className="w-2 h-2 bg-amber-400 rounded-full mr-3"></div>
                       {exam}
                     </li>
@@ -280,7 +280,7 @@ const Landing = () => {
       </section>
 
       {/* Security Section */}
-      <section id="security" className="py-20 px-6 bg-gray-800/20">
+      <section id="security" className="py-20 px-6 bg-black/40">
         <div className="container mx-auto max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -289,22 +289,22 @@ const Landing = () => {
                   Military-Grade Security
                 </span>
               </h2>
-              <p className="text-gray-300 text-lg mb-8">
+              <p className="text-gray-400 text-lg mb-8">
                 Our multi-layered security approach ensures the highest level of exam integrity and data protection.
               </p>
               
               <div className="grid grid-cols-2 gap-4">
                 {securityFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-lg">
+                  <div key={index} className="flex items-center space-x-3 p-3 bg-black/40 rounded-lg">
                     <ShieldCheckIcon className="h-5 w-5 text-amber-400" />
-                    <span className="text-gray-300">{feature}</span>
+                    <span className="text-gray-400">{feature}</span>
                   </div>
                 ))}
               </div>
             </div>
             
             <div className="relative">
-              <div className="bg-gradient-to-br from-orange-900/30 to-amber-900/30 p-8 rounded-2xl border border-gray-700/50">
+              <div className="bg-gradient-to-br from-orange-950/30 to-amber-950/30 p-8 rounded-2xl border border-gray-800/50">
                 <div className="space-y-6">
                   {[
                     { label: 'AI Proctoring', value: 98 },
@@ -314,10 +314,10 @@ const Landing = () => {
                   ].map((item, index) => (
                     <div key={index}>
                       <div className="flex justify-between mb-2">
-                        <span className="text-gray-300">{item.label}</span>
+                        <span className="text-gray-400">{item.label}</span>
                         <span className="text-amber-400 font-semibold">{item.value}%</span>
                       </div>
-                      <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"
                           style={{ width: `${item.value}%` }}
@@ -341,8 +341,8 @@ const Landing = () => {
                 Trusted by Leading Institutions
               </span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              See what educators and professionals are saying about Sage Exams
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+              See what educators and professionals are saying about X Exams
             </p>
           </div>
           
@@ -350,7 +350,7 @@ const Landing = () => {
             {testimonials.map((testimonial, index) => (
               <div 
                 key={index} 
-                className="p-8 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300"
+                className="p-8 bg-black/40 backdrop-blur-sm rounded-2xl border border-gray-800/50 hover:border-orange-500/50 transition-all duration-300"
               >
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center text-white font-bold">
@@ -358,10 +358,10 @@ const Landing = () => {
                   </div>
                   <div className="ml-4">
                     <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-gray-400">{testimonial.role}</div>
+                    <div className="text-sm text-gray-500">{testimonial.role}</div>
                   </div>
                 </div>
-                <p className="text-gray-300 italic">"{testimonial.quote}"</p>
+                <p className="text-gray-400 italic">"{testimonial.quote}"</p>
               </div>
             ))}
           </div>
@@ -371,10 +371,10 @@ const Landing = () => {
       {/* CTA Section */}
       <section className="py-20 px-6">
         <div className="container mx-auto max-w-4xl">
-          <div className="text-center p-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl border border-gray-700/50 relative overflow-hidden">
+          <div className="text-center p-12 bg-gradient-to-br from-black to-gray-950 rounded-3xl border border-gray-800/50 relative overflow-hidden">
             <div className="absolute inset-0 opacity-5">
               <div className="absolute inset-0" style={{
-                backgroundImage: `radial-gradient(circle at 2px 2px, rgba(249, 115, 22, 0.2) 1px, transparent 1px)`,
+                backgroundImage: `radial-gradient(circle at 2px 2px, rgba(249, 115, 22, 0.15) 1px, transparent 1px)`,
                 backgroundSize: '40px 40px'
               }}></div>
             </div>
@@ -382,8 +382,8 @@ const Landing = () => {
             <h2 className="text-4xl font-display font-bold mb-6 relative z-10">
               Ready to Transform Your <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Exam Experience?</span>
             </h2>
-            <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto relative z-10">
-              Join thousands of institutions already using Sage for secure, reliable online assessments.
+            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto relative z-10">
+              Join thousands of institutions already using X Exams for secure, reliable online assessments.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
@@ -396,13 +396,13 @@ const Landing = () => {
               </Link>
               <Link 
                 to="/contact" 
-                className="px-10 py-4 border-2 border-gray-700 rounded-xl font-semibold text-lg hover:border-orange-500 hover:text-orange-300 transition-all duration-300"
+                className="px-10 py-4 border-2 border-gray-800 rounded-xl font-semibold text-lg hover:border-orange-500 hover:text-orange-300 transition-all duration-300"
               >
                 Contact Sales
               </Link>
             </div>
             
-            <div className="mt-8 text-gray-500 text-sm relative z-10">
+            <div className="mt-8 text-gray-600 text-sm relative z-10">
               No credit card required • 30-day free trial • 24/7 Support
             </div>
           </div>
@@ -421,20 +421,20 @@ const Landing = () => {
                 <span className="text-2xl font-display font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
                   X Exams
                 </span>
-                <p className="text-gray-500 text-sm">© 2026 Secure Online Assessment Platform</p>
+                <p className="text-gray-600 text-sm">© 2026 Secure Online Assessment Platform</p>
               </div>
             </div>
             
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-orange-300 transition-colors">Security</a>
-              <a href="#" className="text-gray-400 hover:text-orange-300 transition-colors">Compliance</a>
-              <a href="#" className="text-gray-400 hover:text-orange-300 transition-colors">Support</a>
-              <a href="#" className="text-gray-400 hover:text-orange-300 transition-colors">API Docs</a>
+              <a href="#" className="text-gray-500 hover:text-orange-300 transition-colors">Security</a>
+              <a href="#" className="text-gray-500 hover:text-orange-300 transition-colors">Compliance</a>
+              <a href="#" className="text-gray-500 hover:text-orange-300 transition-colors">Support</a>
+              <a href="#" className="text-gray-500 hover:text-orange-300 transition-colors">API Docs</a>
             </div>
           </div>
           
           <div className="mt-8 pt-8 border-t border-gray-800/30 text-center">
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-600 text-sm">
               ISO 27001 Certified • GDPR Compliant • SOC 2 Type II
             </p>
           </div>
@@ -443,9 +443,9 @@ const Landing = () => {
 
       {/* Background Elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/5 rounded-full mix-blend-screen filter blur-3xl animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-screen filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-orange-500/5 rounded-full mix-blend-screen filter blur-3xl animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-600/5 rounded-full mix-blend-screen filter blur-3xl animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-600/5 rounded-full mix-blend-screen filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-orange-600/5 rounded-full mix-blend-screen filter blur-3xl animate-blob animation-delay-4000"></div>
       </div>
     </div>
   );
