@@ -29,14 +29,14 @@ import toast from 'react-hot-toast';
 
 const AdminPanel = () => {
   const [stats, setStats] = useState({
-    uptime: 99.99,
-    activeSessions: 1247,
+    uptime: 0,
+    activeSessions: 0,
     examsToday: 0,
-    avgResponseTime: 0.8,
+    avgResponseTime: 0,
     totalUsers: 0,
     totalExams: 0,
     passRate: 0,
-    suspiciousActivities: 3
+    suspiciousActivities: 0
   });
 
   // Fetch real data with error handling
