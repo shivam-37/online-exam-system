@@ -32,9 +32,13 @@ const Exams = () => {
   const fetchExams = async () => {
     try {
       const response = await examAPI.getExams();
-      setExams(response.data);
+      const data = response.data;
+      // Handle both flat array and wrapped object responses
+      const examsArray = Array.isArray(data) ? data : data?.exams || data?.data || [];
+      setExams(examsArray);
     } catch (error) {
       console.error('Error fetching exams:', error);
+      setExams([]);
     } finally {
       setLoading(false);
     }

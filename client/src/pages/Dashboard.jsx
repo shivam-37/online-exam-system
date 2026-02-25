@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { examAPI, reportAPI, userAPI } from '../services/api';
+import { examAPI, reportAPI } from '../services/api';
 import { getUser } from '../utils/auth';
-import { 
+import {
   FiBook, FiBarChart2, FiCheckCircle,
   FiAlertTriangle, FiAward, FiUsers, FiFileText,
   FiVideo, FiBell, FiGrid, FiActivity,
@@ -10,9 +10,9 @@ import {
   FiSearch, FiFilter, FiDownload, FiEye,
   FiRefreshCw, FiRotateCw, FiTarget
 } from 'react-icons/fi';
-import { 
-  HiOutlineSparkles, 
-  HiOutlineFire, 
+import {
+  HiOutlineSparkles,
+  HiOutlineFire,
   HiOutlineAcademicCap,
   HiOutlineDocumentReport,
   HiOutlineCalendar,
@@ -59,7 +59,7 @@ const Dashboard = () => {
   // Role-based dashboard tabs
   const getTabsByRole = () => {
     const role = user?.role || 'student';
-    
+
     const tabConfig = {
       student: [
         { id: 'overview', label: 'Overview', icon: FiGrid, color: 'from-blue-500 to-cyan-400' },
@@ -101,37 +101,38 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [examsRes, reportsRes, notificationsRes] = await Promise.all([
+      const [examsRes, reportsRes] = await Promise.all([
         examAPI.getExams(),
         reportAPI.getMyReports(),
-        userAPI.getNotifications(),
       ]);
 
-      setExams(examsRes.data);
-      setReports(reportsRes.data);
-      setNotifications(notificationsRes.data);
+      const examsData = Array.isArray(examsRes.data) ? examsRes.data : examsRes.data?.exams || examsRes.data?.data || [];
+      const reportsData = Array.isArray(reportsRes.data) ? reportsRes.data : reportsRes.data?.reports || reportsRes.data?.data || [];
 
-      const attemptedExams = new Set(reportsRes.data.map(r => r.exam?._id)).size;
-      const totalQuestions = reportsRes.data.reduce((acc, r) => acc + (r.totalQuestions || 0), 0);
-      const correctQuestions = reportsRes.data.reduce((acc, r) => acc + (r.correctAnswers || 0), 0);
+      setExams(examsData);
+      setReports(reportsData);
+
+      const attemptedExams = new Set(reportsData.map(r => r.exam?._id)).size;
+      const totalQuestions = reportsData.reduce((acc, r) => acc + (r.totalQuestions || 0), 0);
+      const correctQuestions = reportsData.reduce((acc, r) => acc + (r.correctAnswers || 0), 0);
       const accuracy = totalQuestions > 0 ? (correctQuestions / totalQuestions) * 100 : 0;
-      const averageScore = reportsRes.data.length > 0 
-        ? reportsRes.data.reduce((acc, r) => acc + (r.percentage || 0), 0) / reportsRes.data.length 
+      const averageScore = reportsData.length > 0
+        ? reportsData.reduce((acc, r) => acc + (r.percentage || 0), 0) / reportsData.length
         : 0;
-      
+
       const streak = localStorage.getItem('studyStreak') || 0;
-      const timeSpent = reportsRes.data.reduce((acc, r) => acc + (r.timeTaken || 0), 0);
+      const timeSpent = reportsData.reduce((acc, r) => acc + (r.timeTaken || 0), 0);
       const rank = Math.floor(Math.random() * 100) + 1;
       const percentile = Math.floor(Math.random() * 30) + 70;
       const focusTime = Math.floor(timeSpent * 0.85);
       const productivity = Math.min(accuracy * 1.5, 100);
-      const completionRate = reportsRes.data.length > 0 ? (attemptedExams / examsRes.data.length) * 100 : 0;
-      
+      const completionRate = reportsData.length > 0 ? (attemptedExams / examsData.length) * 100 : 0;
+
       setStats({
-        totalExams: examsRes.data.length,
+        totalExams: examsData.length,
         attemptedExams,
         averageScore,
-        passedExams: reportsRes.data.filter(r => r.passed).length,
+        passedExams: reportsData.filter(r => r.passed).length,
         rank,
         totalQuestions,
         accuracy,
@@ -192,18 +193,17 @@ const Dashboard = () => {
                 <h1 className="text-3xl font-bold text-white">
                   Welcome back, {user?.name}! 👋
                 </h1>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  userRole === 'admin' ? 'bg-purple-500/20 text-purple-300' :
-                  userRole === 'teacher' ? 'bg-emerald-500/20 text-emerald-300' :
-                  'bg-blue-500/20 text-blue-300'
-                }`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${userRole === 'admin' ? 'bg-purple-500/20 text-purple-300' :
+                    userRole === 'teacher' ? 'bg-emerald-500/20 text-emerald-300' :
+                      'bg-blue-500/20 text-blue-300'
+                  }`}>
                   {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                 </span>
               </div>
               <p className="text-gray-300 mt-2">
                 {userRole === 'admin' ? 'Manage your platform, users, and exams' :
-                 userRole === 'teacher' ? 'Monitor your students and create exams' :
-                 'Here\'s your learning progress and upcoming activities'}
+                  userRole === 'teacher' ? 'Monitor your students and create exams' :
+                    'Here\'s your learning progress and upcoming activities'}
               </p>
               <div className="flex flex-wrap gap-3 mt-4">
                 {userRole === 'student' && (
@@ -242,7 +242,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="mt-6 md:mt-0">
-              <button 
+              <button
                 onClick={() => {
                   if (userRole === 'student') navigate('/practice');
                   else if (userRole === 'teacher') navigate('/teacher/exams/create');
@@ -252,8 +252,8 @@ const Dashboard = () => {
               >
                 <FiPlay className="mr-2" />
                 {userRole === 'student' ? 'Start Practice' :
-                 userRole === 'teacher' ? 'Create Exam' :
-                 'Manage Exams'}
+                  userRole === 'teacher' ? 'Create Exam' :
+                    'Manage Exams'}
               </button>
             </div>
           </div>
@@ -392,8 +392,8 @@ const Dashboard = () => {
               {/* Student: Upcoming Exams */}
               <UpcomingExams exams={getUpcomingExams()} />
               {/* Student: Performance Analytics */}
-              <PerformanceAnalytics 
-                timeFilter={timeFilter} 
+              <PerformanceAnalytics
+                timeFilter={timeFilter}
                 setTimeFilter={setTimeFilter}
                 stats={stats}
               />
@@ -449,8 +449,8 @@ const Dashboard = () => {
 
       {/* Recent Exams Table - Student Only */}
       {userRole === 'student' && (
-        <RecentExamsTable 
-          reports={getRecentReports()} 
+        <RecentExamsTable
+          reports={getRecentReports()}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
@@ -490,11 +490,10 @@ const Dashboard = () => {
               <tab.icon className="h-4 w-4 mr-2" />
               {tab.label}
               {tab.badge && (
-                <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === tab.id
+                <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${activeTab === tab.id
                     ? 'bg-white/20 text-white'
                     : 'bg-gray-200 text-gray-700'
-                }`}>
+                  }`}>
                   {tab.badge}
                 </span>
               )}
@@ -536,7 +535,7 @@ const StatCard = ({ title, value, trend, badge, icon: Icon, color, progress, tar
           <span className="text-gray-700">{progress.toFixed(1)}%</span>
         </div>
         <div className="w-full bg-gray-100 rounded-full h-2">
-          <div 
+          <div
             className={`bg-gradient-to-r from-${color}-500 to-${color}-400 h-2 rounded-full transition-all duration-500`}
             style={{ width: `${progress}%` }}
           ></div>
@@ -556,24 +555,23 @@ const UpcomingExams = ({ exams }) => (
         <h2 className="text-xl font-bold text-gray-900">Upcoming Exams</h2>
         <p className="text-gray-600 text-sm mt-1">Your scheduled attempts</p>
       </div>
-      <Link 
-        to="/exams" 
+      <Link
+        to="/exams"
         className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 flex items-center transition-colors"
       >
         View All <FiChevronRight className="ml-1 h-4 w-4" />
       </Link>
     </div>
-    
+
     <div className="space-y-4">
       {exams.length > 0 ? exams.map((exam) => (
         <div key={exam._id} className="group bg-gray-50 hover:bg-gray-100 rounded-xl p-4 border border-gray-200 hover:border-blue-300 transition-all duration-300 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className={`p-3 rounded-lg ${
-                exam.difficulty === 'Easy' ? 'bg-emerald-100 text-emerald-700' :
-                exam.difficulty === 'Hard' ? 'bg-rose-100 text-rose-700' :
-                'bg-amber-100 text-amber-700'
-              }`}>
+              <div className={`p-3 rounded-lg ${exam.difficulty === 'Easy' ? 'bg-emerald-100 text-emerald-700' :
+                  exam.difficulty === 'Hard' ? 'bg-rose-100 text-rose-700' :
+                    'bg-amber-100 text-amber-700'
+                }`}>
                 <HiOutlineAcademicCap className="h-6 w-6" />
               </div>
               <div className="ml-4">
@@ -589,8 +587,8 @@ const UpcomingExams = ({ exams }) => (
             </div>
             <div className="text-right">
               <div className="text-sm font-medium text-gray-700 mb-2">
-                {new Date(exam.startDate).toLocaleDateString('en-US', { 
-                  month: 'short', 
+                {new Date(exam.startDate).toLocaleDateString('en-US', {
+                  month: 'short',
                   day: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
@@ -621,7 +619,7 @@ const PerformanceAnalytics = ({ timeFilter, setTimeFilter, stats }) => (
         <h2 className="text-xl font-bold text-gray-900">Performance Analytics</h2>
         <p className="text-gray-600 text-sm mt-1">Your progress over time</p>
       </div>
-      <select 
+      <select
         value={timeFilter}
         onChange={(e) => setTimeFilter(e.target.value)}
         className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -632,12 +630,12 @@ const PerformanceAnalytics = ({ timeFilter, setTimeFilter, stats }) => (
         <option value="year">Last year</option>
       </select>
     </div>
-    
+
     <div className="h-72 flex flex-col items-center justify-center bg-gray-50 rounded-xl p-4">
       <div className="w-full h-48 flex items-end justify-center space-x-4 mb-6">
         {[65, 72, 68, 85, 78, 82, 90].map((value, index) => (
           <div key={index} className="flex flex-col items-center">
-            <div 
+            <div
               className="w-8 rounded-t-lg bg-gradient-to-t from-blue-500 to-cyan-400 transition-all duration-300 hover:opacity-80 cursor-pointer"
               style={{ height: `${value}%` }}
               title={`Score: ${value}%`}
@@ -680,7 +678,7 @@ const QuickStats = ({ stats }) => (
           </div>
           <div className="w-16">
             <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div 
+              <div
                 className={`bg-gradient-to-r from-${stat.color}-500 to-${stat.color}-400 h-1.5 rounded-full`}
                 style={{ width: `${stat.progress || 0}%` }}
               ></div>
@@ -725,9 +723,8 @@ const RecentActivity = ({ reports }) => (
     <div className="space-y-3">
       {reports.length > 0 ? reports.map((report, index) => (
         <div key={index} className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-          <div className={`p-2 rounded-lg mr-3 ${
-            report.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-          }`}>
+          <div className={`p-2 rounded-lg mr-3 ${report.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+            }`}>
             {report.passed ? <FiCheckCircle /> : <FiAlertTriangle />}
           </div>
           <div className="flex-1 min-w-0">
@@ -776,7 +773,7 @@ const RecentExamsTable = ({ reports, searchQuery, setSearchQuery }) => (
         </button>
       </div>
     </div>
-    
+
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
@@ -793,14 +790,12 @@ const RecentExamsTable = ({ reports, searchQuery, setSearchQuery }) => (
             <tr key={report._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
               <td className="py-4">
                 <div className="flex items-center">
-                  <div className={`p-2 rounded-lg mr-3 ${
-                    report.percentage >= 70 ? 'bg-emerald-100' :
-                    report.percentage >= 50 ? 'bg-amber-100' : 'bg-rose-100'
-                  }`}>
-                    <FiFileText className={`${
-                      report.percentage >= 70 ? 'text-emerald-700' :
-                      report.percentage >= 50 ? 'text-amber-700' : 'text-rose-700'
-                    }`} />
+                  <div className={`p-2 rounded-lg mr-3 ${report.percentage >= 70 ? 'bg-emerald-100' :
+                      report.percentage >= 50 ? 'bg-amber-100' : 'bg-rose-100'
+                    }`}>
+                    <FiFileText className={`${report.percentage >= 70 ? 'text-emerald-700' :
+                        report.percentage >= 50 ? 'text-amber-700' : 'text-rose-700'
+                      }`} />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{report.exam?.title}</p>
@@ -817,19 +812,17 @@ const RecentExamsTable = ({ reports, searchQuery, setSearchQuery }) => (
                 </p>
               </td>
               <td className="py-4">
-                <div className={`text-lg font-bold ${
-                  report.percentage >= 70 ? 'text-emerald-700' :
-                  report.percentage >= 50 ? 'text-amber-700' : 'text-rose-700'
-                }`}>
+                <div className={`text-lg font-bold ${report.percentage >= 70 ? 'text-emerald-700' :
+                    report.percentage >= 50 ? 'text-amber-700' : 'text-rose-700'
+                  }`}>
                   {report.percentage?.toFixed(1)}%
                 </div>
               </td>
               <td className="py-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  report.passed 
-                    ? 'bg-emerald-100 text-emerald-700' 
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${report.passed
+                    ? 'bg-emerald-100 text-emerald-700'
                     : 'bg-rose-100 text-rose-700'
-                }`}>
+                  }`}>
                   {report.passed ? 'Passed' : 'Failed'}
                 </span>
               </td>

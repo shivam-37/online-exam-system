@@ -139,6 +139,78 @@ const seedDatabase = async () => {
         });
         console.log(`📝 Sample exam created: "${exam.title}" (5 questions)`);
 
+        // Second sample exam
+        const exam2 = await Exam.create({
+            title: 'React Basics',
+            description: 'Test your understanding of React fundamentals including components, hooks, and state management.',
+            subject: 'React',
+            duration: 25,
+            totalMarks: 4,
+            passingMarks: 2,
+            createdBy: admin._id,
+            isActive: true,
+            startDate: new Date(),
+            endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
+            maxAttempts: 3,
+            instructions: [
+                'Read all questions carefully before answering',
+                'Each question carries 1 mark',
+                'No negative marking',
+                'You have 25 minutes to complete the exam',
+            ],
+            questions: [
+                {
+                    questionText: 'What hook is used to manage state in a functional component?',
+                    questionType: 'multiple-choice',
+                    points: 1,
+                    timeLimit: 60,
+                    options: [
+                        { text: 'useEffect', isCorrect: false },
+                        { text: 'useState', isCorrect: true },
+                        { text: 'useContext', isCorrect: false },
+                        { text: 'useReducer', isCorrect: false },
+                    ],
+                },
+                {
+                    questionText: 'What does JSX stand for?',
+                    questionType: 'multiple-choice',
+                    points: 1,
+                    timeLimit: 60,
+                    options: [
+                        { text: 'JavaScript XML', isCorrect: true },
+                        { text: 'JavaScript Extension', isCorrect: false },
+                        { text: 'Java Syntax Extension', isCorrect: false },
+                        { text: 'JSON XML Syntax', isCorrect: false },
+                    ],
+                },
+                {
+                    questionText: 'Which method is used to render a React component to the DOM?',
+                    questionType: 'multiple-choice',
+                    points: 1,
+                    timeLimit: 60,
+                    options: [
+                        { text: 'React.render()', isCorrect: false },
+                        { text: 'ReactDOM.createRoot().render()', isCorrect: true },
+                        { text: 'React.mount()', isCorrect: false },
+                        { text: 'ReactDOM.display()', isCorrect: false },
+                    ],
+                },
+                {
+                    questionText: 'What is the virtual DOM in React?',
+                    questionType: 'multiple-choice',
+                    points: 1,
+                    timeLimit: 60,
+                    options: [
+                        { text: 'A copy of the real DOM kept in memory', isCorrect: true },
+                        { text: 'A database for storing components', isCorrect: false },
+                        { text: 'A browser extension', isCorrect: false },
+                        { text: 'A CSS framework', isCorrect: false },
+                    ],
+                },
+            ],
+        });
+        console.log(`📝 Sample exam created: "${exam2.title}" (4 questions)`);
+
         // =====================
         // 3. Create Default Settings
         // =====================

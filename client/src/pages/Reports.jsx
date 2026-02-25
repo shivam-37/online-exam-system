@@ -32,7 +32,10 @@ const Reports = () => {
       const response = userRole === 'student'
         ? await reportAPI.getMyReports()
         : await reportAPI.getAllReports();
-      setReports(response.data || []);
+      const data = response.data;
+      // Handle both flat array and wrapped object responses
+      const reportsArray = Array.isArray(data) ? data : data?.reports || data?.data || [];
+      setReports(reportsArray);
     } catch (error) {
       console.error('Error fetching reports:', error);
       setReports([]);
@@ -152,10 +155,10 @@ const Reports = () => {
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`px-5 py-3 rounded-xl font-medium text-sm transition-all ${filter === f
-                      ? f === 'passed' ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                        : f === 'failed' ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                          : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700 hover:text-white'
+                    ? f === 'passed' ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                      : f === 'failed' ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                    : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700 hover:text-white'
                     }`}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -204,8 +207,8 @@ const Reports = () => {
                   <div className="flex items-center space-x-4 flex-1">
                     {/* Score Circle */}
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${report.passed
-                        ? 'bg-green-500/20 border border-green-500/30'
-                        : 'bg-red-500/20 border border-red-500/30'
+                      ? 'bg-green-500/20 border border-green-500/30'
+                      : 'bg-red-500/20 border border-red-500/30'
                       }`}>
                       <span className={`text-lg font-bold ${report.passed ? 'text-green-400' : 'text-red-400'}`}>
                         {(report.percentage || 0).toFixed(0)}%
@@ -245,8 +248,8 @@ const Reports = () => {
 
                     <div className="text-center">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${report.passed
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-red-500/20 text-red-400'
                         }`}>
                         {report.passed ? 'Passed' : 'Failed'}
                       </span>
