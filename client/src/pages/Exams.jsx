@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { examAPI } from '../services/api';
 import { getUserRole } from '../utils/auth';
-import { 
-  FiSearch, 
-  FiPlus, 
-  FiClock, 
-  FiCalendar, 
-  FiBook, 
+import {
+  FiSearch,
+  FiPlus,
+  FiClock,
+  FiCalendar,
+  FiBook,
   FiChevronDown,
   FiFilter,
   FiTrendingUp,
@@ -40,35 +40,25 @@ const Exams = () => {
     }
   };
 
-  const filteredExams = exams.filter(exam => {
-    const matchesSearch = exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         exam.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const getExamStatus = (exam) => {
+    if (!exam.startDate && !exam.endDate) return exam.isActive ? 'ongoing' : 'completed';
     const now = new Date();
-    const startDate = new Date(exam.startDate);
-    const endDate = new Date(exam.endDate);
-    
+    if (exam.startDate && new Date(exam.startDate) > now) return 'upcoming';
+    if (exam.endDate && new Date(exam.endDate) < now) return 'completed';
+    return 'ongoing';
+  };
+
+  const filteredExams = exams.filter(exam => {
+    const matchesSearch = (exam.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (exam.subject || '').toLowerCase().includes(searchTerm.toLowerCase());
+
     let matchesFilter = true;
-    if (filter === 'upcoming') {
-      matchesFilter = startDate > now;
-    } else if (filter === 'ongoing') {
-      matchesFilter = startDate <= now && endDate >= now;
-    } else if (filter === 'completed') {
-      matchesFilter = endDate < now;
+    if (filter !== 'all') {
+      matchesFilter = getExamStatus(exam) === filter;
     }
-    
+
     return matchesSearch && matchesFilter;
   });
-
-  const getExamStatus = (startDate, endDate) => {
-    const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    
-    if (start > now) return 'upcoming';
-    if (start <= now && end >= now) return 'ongoing';
-    return 'completed';
-  };
 
   const statusConfig = {
     upcoming: {
@@ -115,7 +105,7 @@ const Exams = () => {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header with glass morphism */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
@@ -127,7 +117,7 @@ const Exams = () => {
               </h1>
               <p className="text-gray-400 mt-2">Browse and participate in available examinations</p>
             </div>
-            
+
             {userRole === 'admin' || userRole === 'teacher' ? (
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
@@ -144,7 +134,7 @@ const Exams = () => {
         </motion.div>
 
         {/* Stats Cards */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -152,9 +142,9 @@ const Exams = () => {
         >
           {[
             { label: 'Total Exams', value: exams.length, icon: FiBook, color: 'from-indigo-500 to-indigo-600' },
-            { label: 'Available Now', value: exams.filter(e => getExamStatus(e.startDate, e.endDate) === 'ongoing').length, icon: FiTrendingUp, color: 'from-green-500 to-green-600' },
-            { label: 'Upcoming', value: exams.filter(e => getExamStatus(e.startDate, e.endDate) === 'upcoming').length, icon: FiCalendar, color: 'from-blue-500 to-blue-600' },
-            { label: 'Completed', value: exams.filter(e => getExamStatus(e.startDate, e.endDate) === 'completed').length, icon: FiAward, color: 'from-purple-500 to-purple-600' }
+            { label: 'Available Now', value: exams.filter(e => getExamStatus(e) === 'ongoing').length, icon: FiTrendingUp, color: 'from-green-500 to-green-600' },
+            { label: 'Upcoming', value: exams.filter(e => getExamStatus(e) === 'upcoming').length, icon: FiCalendar, color: 'from-blue-500 to-blue-600' },
+            { label: 'Completed', value: exams.filter(e => getExamStatus(e) === 'completed').length, icon: FiAward, color: 'from-purple-500 to-purple-600' }
           ].map((stat, index) => (
             <motion.div
               key={index}
@@ -176,7 +166,7 @@ const Exams = () => {
         </motion.div>
 
         {/* Search and Filter Section */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -199,9 +189,8 @@ const Exams = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`mr-2 p-2 rounded-xl transition-colors ${
-                    showFilters ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-gray-300'
-                  }`}
+                  className={`mr-2 p-2 rounded-xl transition-colors ${showFilters ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-gray-300'
+                    }`}
                 >
                   <FiFilter className="w-5 h-5" />
                 </motion.button>
@@ -229,11 +218,10 @@ const Exams = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setFilter(filterOption.value)}
-                        className={`flex items-center px-4 py-2 rounded-xl font-medium transition-all ${
-                          filter === filterOption.value
-                            ? `bg-gradient-to-r ${statusConfig[filterOption.value]?.gradient || 'from-indigo-500 to-purple-500'} text-white`
-                            : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-                        }`}
+                        className={`flex items-center px-4 py-2 rounded-xl font-medium transition-all ${filter === filterOption.value
+                          ? `bg-gradient-to-r ${statusConfig[filterOption.value]?.gradient || 'from-indigo-500 to-purple-500'} text-white`
+                          : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                          }`}
                       >
                         <filterOption.icon className="w-4 h-4 mr-2" />
                         {filterOption.label}
@@ -249,17 +237,15 @@ const Exams = () => {
         {/* Exams Grid */}
         <AnimatePresence mode="wait">
           {filteredExams.length > 0 ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {filteredExams.map((exam, index) => {
-                const status = getExamStatus(exam.startDate, exam.endDate);
+                const status = getExamStatus(exam);
                 const StatusIcon = statusConfig[status].icon;
-                const startDate = new Date(exam.startDate);
-                const endDate = new Date(exam.endDate);
 
                 return (
                   <motion.div
@@ -273,11 +259,11 @@ const Exams = () => {
                   >
                     {/* Card background with gradient border */}
                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                    
+
                     <div className="relative h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden">
                       {/* Status bar */}
                       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${statusConfig[status].gradient}`}></div>
-                      
+
                       <div className="p-6">
                         {/* Header */}
                         <div className="flex justify-between items-start mb-4">
@@ -312,7 +298,7 @@ const Exams = () => {
                           </div>
                           <div className="flex items-center text-sm text-gray-400">
                             <FiCalendar className="mr-2 text-indigo-400" />
-                            <span>{format(startDate, 'MMM dd')}</span>
+                            <span>{exam.startDate ? format(new Date(exam.startDate), 'MMM dd') : 'Always'}</span>
                           </div>
                         </div>
 
@@ -320,22 +306,21 @@ const Exams = () => {
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                           <Link
                             to={`/exam/${exam._id}`}
-                            className={`block w-full py-3 px-4 rounded-xl text-center font-medium transition-all ${
-                              status === 'ongoing' && userRole === 'student'
-                                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700'
-                                : userRole === 'admin' || userRole === 'teacher'
+                            className={`block w-full py-3 px-4 rounded-xl text-center font-medium transition-all ${status === 'ongoing' && userRole === 'student'
+                              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700'
+                              : userRole === 'admin' || userRole === 'teacher'
                                 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700'
                                 : 'bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-700'
-                            }`}
+                              }`}
                             onClick={(e) => {
                               if (status !== 'ongoing' && userRole === 'student') {
                                 e.preventDefault();
                               }
                             }}
                           >
-                            {userRole === 'admin' || userRole === 'teacher' ? 'Manage Exam' : 
-                             status === 'upcoming' ? 'Coming Soon' : 
-                             status === 'ongoing' ? 'Start Exam' : 'View Results'}
+                            {userRole === 'admin' || userRole === 'teacher' ? 'Manage Exam' :
+                              status === 'upcoming' ? 'Coming Soon' :
+                                status === 'ongoing' ? 'Start Exam' : 'View Results'}
                           </Link>
                         </motion.div>
                       </div>

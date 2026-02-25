@@ -11,7 +11,6 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
   timeout: 10000, // 10 seconds timeout
 });
 
@@ -20,11 +19,11 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('sage_token');
     console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`, token ? '(Authenticated)' : '(No Auth)');
-    
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Add cache busting for GET requests
     if (config.method?.toLowerCase() === 'get') {
       config.params = {
@@ -32,7 +31,7 @@ api.interceptors.request.use(
         _t: Date.now()
       };
     }
-    
+
     return config;
   },
   (error) => {
@@ -55,23 +54,23 @@ api.interceptors.response.use(
       console.error('   2. Backend has CORS enabled for http://localhost:3000');
       console.error('   3. You have the correct API_URL in .env');
     }
-    
+
     if (error.response) {
       console.error(`❌ ${error.response.status} ${error.config?.url}:`, error.response.data);
-      
+
       // Handle 401 Unauthorized
       if (error.response.status === 401) {
         localStorage.removeItem('sage_token');
         localStorage.removeItem('sage_user');
         window.location.href = '/login';
       }
-      
+
       // Handle 403 Forbidden
       if (error.response.status === 403) {
         console.error('❌ 403 Forbidden - You don\'t have permission to access this resource');
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

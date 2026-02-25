@@ -20,7 +20,7 @@ export const useFetch = (apiFunction, params = null, dependencies = []) => {
       try {
         setLoading(true);
         const response = await apiFunction(params);
-        
+
         if (mountedRef.current && currentFetch === fetchCountRef.current) {
           // Handle different response structures
           if (response.data?.data) {
@@ -73,28 +73,28 @@ export const useMutation = (apiFunction, options = {}) => {
       setError(null);
       const response = await apiFunction(params);
       setData(response.data);
-      
+
       if (options.onSuccess) {
         options.onSuccess(response.data);
       }
-      
+
       if (options.showToast !== false) {
         toast.success(options.successMessage || 'Operation completed successfully');
       }
-      
+
       return response.data;
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
-      
+
       if (options.onError) {
         options.onError(err);
       }
-      
+
       if (options.showToast !== false) {
         toast.error(message);
       }
-      
+
       throw err;
     } finally {
       setLoading(false);
@@ -118,7 +118,7 @@ export const useAuth = () => {
           setLoading(false);
           return;
         }
-        
+
         const response = await authAPI.getMe();
         setUser(response.data.user || response.data);
       } catch (err) {
@@ -267,24 +267,14 @@ export const useUsers = (filters = {}) => {
     [JSON.stringify(filters)]
   );
 
-  const createUser = useMutation(userAPI.createUser, {
-    onSuccess: (data) => {
-      setData(prev => ({
-        ...prev,
-        data: [data.user || data, ...(prev?.data || [])]
-      }));
-    }
-  });
-
   const updateUser = useMutation(({ id, ...userData }) => userAPI.updateUser(id, userData));
   const deleteUser = useMutation(userAPI.deleteUser);
 
   return {
-    users: Array.isArray(data) ? data : data?.data || [],
+    users: Array.isArray(data) ? data : data?.users || data?.data || [],
     total: data?.total || 0,
     loading,
     error,
-    createUser,
     updateUser,
     deleteUser,
     setUsers: setData
@@ -328,7 +318,7 @@ export const useDashboardData = () => {
     productivity: 0,
     completionRate: 0,
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -342,14 +332,14 @@ export const useDashboardData = () => {
         const attemptedExams = new Set(
           reports?.map(r => r.exam?._id).filter(Boolean) || []
         ).size;
-        
+
         const totalQuestions = reports?.reduce((acc, r) => acc + (r.totalQuestions || 0), 0) || 0;
         const correctQuestions = reports?.reduce((acc, r) => acc + (r.correctAnswers || 0), 0) || 0;
         const accuracy = totalQuestions > 0 ? (correctQuestions / totalQuestions) * 100 : 0;
-        const averageScore = reports?.length > 0 
-          ? reports.reduce((acc, r) => acc + (r.percentage || 0), 0) / reports.length 
+        const averageScore = reports?.length > 0
+          ? reports.reduce((acc, r) => acc + (r.percentage || 0), 0) / reports.length
           : 0;
-        
+
         const streak = localStorage.getItem('studyStreak') || 0;
         const timeSpent = reports?.reduce((acc, r) => acc + (r.timeTaken || 0), 0) || 0;
         const rank = Math.floor(Math.random() * 100) + 1;
@@ -357,7 +347,7 @@ export const useDashboardData = () => {
         const focusTime = Math.floor(timeSpent * 0.85);
         const productivity = Math.min(accuracy * 1.5, 100);
         const completionRate = exams?.length > 0 ? (attemptedExams / exams.length) * 100 : 0;
-        
+
         setStats({
           totalExams: exams?.length || 0,
           attemptedExams,
@@ -383,12 +373,12 @@ export const useDashboardData = () => {
     }
   }, [exams, reports, profile, examsLoading, reportsLoading, profileLoading]);
 
-  return { 
-    stats, 
-    loading, 
-    error, 
-    exams: exams || [], 
+  return {
+    stats,
+    loading,
+    error,
+    exams: exams || [],
     reports: reports || [],
-    profile 
+    profile
   };
 };

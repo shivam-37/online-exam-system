@@ -12,8 +12,8 @@ exports.createExam = async (req, res) => {
     });
     res.status(201).json(exam);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Create exam error:', error);
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 };
 
@@ -24,13 +24,21 @@ exports.getExams = async (req, res) => {
   try {
     let exams;
     if (req.user.role === 'student') {
-      exams = await Exam.find({ 
-        isActive: true,
-        startDate: { $lte: new Date() },
-        endDate: { $gte: new Date() }
+      // Students see active exams. If dates exist, check them; if not, show anyway.
+      exams = await Exam.find({ isActive: true }).populate('createdBy', 'name');
+      const now = new Date();
+      exams = exams.filter(exam => {
+        // If no dates set, show the exam
+        if (!exam.startDate && !exam.endDate) return true;
+        // If only startDate, check it's past
+        if (exam.startDate && !exam.endDate) return new Date(exam.startDate) <= now;
+        // If only endDate, check it hasn't passed
+        if (!exam.startDate && exam.endDate) return new Date(exam.endDate) >= now;
+        // Both dates set, check range
+        return new Date(exam.startDate) <= now && new Date(exam.endDate) >= now;
       });
     } else {
-      exams = await Exam.find();
+      exams = await Exam.find().populate('createdBy', 'name').sort({ createdAt: -1 });
     }
     res.json(exams);
   } catch (error) {
@@ -44,7 +52,7 @@ exports.getExams = async (req, res) => {
 // @access  Private
 exports.getExam = async (req, res) => {
   try {
-    const exam = await Exam.findById(req.params.id);
+    const exam = await Exam.findById(req.params.id).populate('createdBy', 'name email');
     if (!exam) {
       return res.status(404).json({ message: 'Exam not found' });
     }
@@ -97,6 +105,8 @@ exports.deleteExam = async (req, res) => {
     }
 
     await exam.deleteOne();
+    // Also delete associated reports
+    await Report.deleteMany({ exam: req.params.id });
     res.json({ message: 'Exam removed' });
   } catch (error) {
     console.error(error);
@@ -119,10 +129,24 @@ exports.startExam = async (req, res) => {
       return res.status(400).json({ message: 'Exam is not active' });
     }
 
-    // Check exam date
+    // Check exam date only if dates are set
     const now = new Date();
-    if (now < exam.startDate || now > exam.endDate) {
-      return res.status(400).json({ message: 'Exam is not available at this time' });
+    if (exam.startDate && now < new Date(exam.startDate)) {
+      return res.status(400).json({ message: 'Exam has not started yet' });
+    }
+    if (exam.endDate && now > new Date(exam.endDate)) {
+      return res.status(400).json({ message: 'Exam has already ended' });
+    }
+
+    // Check max attempts
+    if (exam.maxAttempts) {
+      const attemptCount = await Report.countDocuments({
+        user: req.user.id,
+        exam: exam._id,
+      });
+      if (attemptCount >= exam.maxAttempts) {
+        return res.status(400).json({ message: `Maximum attempts (${exam.maxAttempts}) reached` });
+      }
     }
 
     res.json({
@@ -151,32 +175,38 @@ exports.submitExam = async (req, res) => {
     let totalMarks = 0;
 
     // Calculate score
-    answers.forEach((answer, index) => {
+    const processedAnswers = (answers || []).map((answer, index) => {
       const question = exam.questions[index];
-      totalMarks += question.points;
-      
-      if (answer.selectedOption !== undefined) {
+      if (!question) return answer;
+
+      totalMarks += question.points || 1;
+
+      if (answer.selectedOption !== undefined && answer.selectedOption !== null) {
         const isCorrect = question.options[answer.selectedOption]?.isCorrect || false;
         if (isCorrect) {
-          score += question.points;
+          score += question.points || 1;
         }
-        answer.isCorrect = isCorrect;
+        return { ...answer, isCorrect };
       }
+      return { ...answer, isCorrect: false };
     });
 
-    const percentage = (score / totalMarks) * 100;
-    const passed = percentage >= (exam.passingMarks / exam.totalMarks) * 100;
+    const percentage = totalMarks > 0 ? (score / totalMarks) * 100 : 0;
+    const passed = exam.passingMarks
+      ? percentage >= (exam.passingMarks / exam.totalMarks) * 100
+      : percentage >= 50;
 
     // Create report
     const report = await Report.create({
       user: req.user.id,
       exam: exam._id,
-      answers,
+      answers: processedAnswers,
       score,
       totalMarks,
       percentage,
       passed,
-      timeTaken,
+      timeTaken: timeTaken || 0,
+      completedAt: new Date(),
       ipAddress: req.ip,
       deviceInfo: req.headers['user-agent'],
     });
@@ -187,7 +217,7 @@ exports.submitExam = async (req, res) => {
       totalMarks,
       percentage,
       passed,
-      timeTaken,
+      timeTaken: timeTaken || 0,
     });
   } catch (error) {
     console.error(error);

@@ -12,6 +12,8 @@ const Exams = lazy(() => import('./pages/Exams'));
 const ExamDetail = lazy(() => import('./pages/ExamDetail'));
 const Reports = lazy(() => import('./pages/Reports'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const TakeExam = lazy(() => import('./pages/TakeExam'));
 const ReportDetail = lazy(() => import('./pages/ReportDetail'));
 const CreateExam = lazy(() => import('./pages/CreateExam'));
@@ -69,10 +71,6 @@ const PublicRoute = ({ children, isLanding = false }) => {
   return children;
 };
 
-// Admin specific pages
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
-const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
-
 // Not Found component
 const NotFound = () => (
   <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -118,6 +116,13 @@ function App() {
           </PublicRoute>
         } />
 
+        {/* TakeExam - Outside Layout for fullscreen proctored mode */}
+        <Route path="/exam/:id/take" element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <TakeExam />
+          </ProtectedRoute>
+        } />
+
         {/* Protected Routes with Layout */}
         <Route element={<Layout />}>
           <Route path="/dashboard" element={
@@ -135,12 +140,6 @@ function App() {
           <Route path="/exam/:id" element={
             <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
               <ExamDetail />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/exam/:id/take" element={
-            <ProtectedRoute allowedRoles={['student']}>
-              <TakeExam />
             </ProtectedRoute>
           } />
 

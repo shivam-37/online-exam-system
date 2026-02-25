@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { reportAPI } from '../services/api';
 import { getUserRole } from '../utils/auth';
-import { 
-  FiSearch, 
-  FiFilter, 
-  FiDownload,
+import { motion } from 'framer-motion';
+import {
+  FiSearch,
   FiEye,
   FiTrendingUp,
-  FiTrendingDown,
-  FiCalendar
+  FiCalendar,
+  FiAward,
+  FiBarChart2,
+  FiCheckCircle,
+  FiXCircle,
+  FiClock
 } from 'react-icons/fi';
 import { format } from 'date-fns';
 
@@ -26,280 +29,252 @@ const Reports = () => {
 
   const fetchReports = async () => {
     try {
-      const response = userRole === 'student' 
+      const response = userRole === 'student'
         ? await reportAPI.getMyReports()
         : await reportAPI.getAllReports();
-      setReports(response.data);
+      setReports(response.data || []);
     } catch (error) {
       console.error('Error fetching reports:', error);
+      setReports([]);
     } finally {
       setLoading(false);
     }
   };
 
   const filteredReports = reports.filter(report => {
-    const matchesSearch = 
-      report.exam?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.user?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch =
+      (report.exam?.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (report.user?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+
     let matchesFilter = true;
-    if (filter === 'passed') {
-      matchesFilter = report.passed;
-    } else if (filter === 'failed') {
-      matchesFilter = !report.passed;
-    }
-    
+    if (filter === 'passed') matchesFilter = report.passed;
+    else if (filter === 'failed') matchesFilter = !report.passed;
+
     return matchesSearch && matchesFilter;
   });
 
   const stats = {
     total: reports.length,
     passed: reports.filter(r => r.passed).length,
-    averageScore: reports.length > 0 
-      ? reports.reduce((acc, r) => acc + r.percentage, 0) / reports.length 
+    failed: reports.filter(r => !r.passed).length,
+    averageScore: reports.length > 0
+      ? reports.reduce((acc, r) => acc + (r.percentage || 0), 0) / reports.length
       : 0,
-    bestScore: reports.length > 0 
-      ? Math.max(...reports.map(r => r.percentage)) 
+    bestScore: reports.length > 0
+      ? Math.max(...reports.map(r => r.percentage || 0))
       : 0,
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+          <p className="text-gray-300 font-medium">Loading reports...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Exam Reports</h1>
-          <p className="text-gray-600 mt-2">
-            {userRole === 'student' 
-              ? 'View your exam performance and history' 
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold text-white">
+            <FiBarChart2 className="inline mr-3 text-blue-400" />
+            Exam Reports
+          </h1>
+          <p className="text-gray-400 mt-2">
+            {userRole === 'student'
+              ? 'View your exam performance and history'
               : 'View all exam reports and analytics'}
           </p>
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Reports</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"
+        >
+          {[
+            { label: 'Total Reports', value: stats.total, icon: FiCalendar, color: 'from-blue-500 to-cyan-400' },
+            { label: 'Passed', value: stats.passed, icon: FiCheckCircle, color: 'from-green-500 to-emerald-400' },
+            { label: 'Failed', value: stats.failed, icon: FiXCircle, color: 'from-red-500 to-pink-400' },
+            { label: 'Avg Score', value: `${stats.averageScore.toFixed(1)}%`, icon: FiTrendingUp, color: 'from-purple-500 to-violet-400' },
+            { label: 'Best Score', value: `${stats.bestScore.toFixed(1)}%`, icon: FiAward, color: 'from-amber-500 to-orange-400' },
+          ].map((stat, index) => (
+            <div key={index} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 p-5">
+              <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${stat.color} rounded-full filter blur-2xl opacity-20`}></div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-xs">{stat.label}</p>
+                  <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                </div>
+                <div className={`p-2 bg-gradient-to-br ${stat.color} rounded-lg`}>
+                  <stat.icon className="h-5 w-5 text-white" />
+                </div>
               </div>
-              <FiCalendar className="h-8 w-8 text-primary-600" />
             </div>
-          </div>
-          
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Passed</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.passed}</p>
-              </div>
-              <FiTrendingUp className="h-8 w-8 text-green-600" />
-            </div>
-          </div>
-          
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Avg Score</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.averageScore.toFixed(1)}%</p>
-              </div>
-              <FiTrendingUp className="h-8 w-8 text-blue-600" />
-            </div>
-          </div>
-          
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Best Score</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.bestScore.toFixed(1)}%</p>
-              </div>
-              <FiTrendingUp className="h-8 w-8 text-purple-600" />
-            </div>
-          </div>
-        </div>
+          ))}
+        </motion.div>
 
         {/* Search and Filter */}
-        <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-6"
+        >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="Search reports..."
+                  placeholder="Search by exam or student name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 input-field"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
-            
+
             <div className="flex gap-2">
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  filter === 'all'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setFilter('passed')}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  filter === 'passed'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Passed
-              </button>
-              <button
-                onClick={() => setFilter('failed')}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  filter === 'failed'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Failed
-              </button>
+              {['all', 'passed', 'failed'].map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-5 py-3 rounded-xl font-medium text-sm transition-all ${filter === f
+                      ? f === 'passed' ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                        : f === 'failed' ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                          : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                      : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700 hover:text-white'
+                    }`}
+                >
+                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                </button>
+              ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Reports Table */}
-        <div className="card">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  {userRole !== 'student' && (
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Student
-                    </th>
-                  )}
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Exam
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Score
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredReports.map((report) => (
-                  <tr key={report._id} className="hover:bg-gray-50">
-                    {userRole !== 'student' && (
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0">
-                            <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                              <span className="text-primary-600 font-medium text-sm">
-                                {report.user?.name?.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">
-                              {report.user?.name || 'Unknown'}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {report.user?.email || ''}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                    )}
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {report.exam?.title || 'Unknown Exam'}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {report.exam?.subject || ''}
-                      </div>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {report.score} / {report.totalMarks}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {report.percentage.toFixed(1)}%
-                      </div>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        report.passed 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+        {/* Reports List */}
+        {filteredReports.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <FiBarChart2 className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-300">No reports found</h3>
+            <p className="text-gray-500 mt-2">
+              {searchTerm ? 'Try adjusting your search' : 'No exam reports available yet. Take an exam to see your results here!'}
+            </p>
+            <Link
+              to="/exams"
+              className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+            >
+              Browse Exams
+            </Link>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-3"
+          >
+            {filteredReports.map((report, index) => (
+              <motion.div
+                key={report._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="group bg-gray-800/30 hover:bg-gray-800/60 border border-gray-700/50 hover:border-gray-600/50 rounded-2xl p-5 transition-all duration-300"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  {/* Left: Exam & Student Info */}
+                  <div className="flex items-center space-x-4 flex-1">
+                    {/* Score Circle */}
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${report.passed
+                        ? 'bg-green-500/20 border border-green-500/30'
+                        : 'bg-red-500/20 border border-red-500/30'
                       }`}>
+                      <span className={`text-lg font-bold ${report.passed ? 'text-green-400' : 'text-red-400'}`}>
+                        {(report.percentage || 0).toFixed(0)}%
+                      </span>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-white font-medium truncate">
+                        {report.exam?.title || 'Unknown Exam'}
+                      </h3>
+                      <div className="flex items-center space-x-3 mt-1">
+                        {userRole !== 'student' && report.user?.name && (
+                          <span className="text-sm text-gray-400">
+                            {report.user.name}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-500">
+                          {report.exam?.subject || ''}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Middle: Stats */}
+                  <div className="flex items-center space-x-6">
+                    <div className="text-center">
+                      <p className="text-white font-medium">{report.score}/{report.totalMarks}</p>
+                      <p className="text-xs text-gray-500">Score</p>
+                    </div>
+
+                    <div className="text-center">
+                      <p className="text-white font-medium">
+                        {report.timeTaken ? `${Math.floor(report.timeTaken / 60)}m` : '--'}
+                      </p>
+                      <p className="text-xs text-gray-500">Time</p>
+                    </div>
+
+                    <div className="text-center">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${report.passed
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-red-500/20 text-red-400'
+                        }`}>
                         {report.passed ? 'Passed' : 'Failed'}
                       </span>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {format(new Date(report.completedAt), 'MMM dd, yyyy')}
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <Link
-                          to={`/report/${report._id}`}
-                          className="text-primary-600 hover:text-primary-900"
-                          title="View Details"
-                        >
-                          <FiEye className="h-5 w-5" />
-                        </Link>
-                        <button
-                          className="text-gray-600 hover:text-gray-900"
-                          title="Download Report"
-                        >
-                          <FiDownload className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            
-            {filteredReports.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                  </svg>
+                    </div>
+
+                    <div className="text-center hidden sm:block">
+                      <p className="text-sm text-gray-400">
+                        {report.completedAt
+                          ? format(new Date(report.completedAt), 'MMM dd, yyyy')
+                          : 'N/A'}
+                      </p>
+                      <p className="text-xs text-gray-500">Date</p>
+                    </div>
+                  </div>
+
+                  {/* Right: Actions */}
+                  <Link
+                    to={`/report/${report._id}`}
+                    className="flex items-center justify-center px-4 py-2 bg-gray-700/50 hover:bg-blue-500/20 text-gray-400 hover:text-blue-400 rounded-xl transition-all border border-gray-700 hover:border-blue-500/30"
+                  >
+                    <FiEye className="h-4 w-4 mr-2" />
+                    View
+                  </Link>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900">No reports found</h3>
-                <p className="text-gray-500 mt-1">
-                  {searchTerm ? 'Try adjusting your search' : 'No reports available yet'}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </div>
   );
